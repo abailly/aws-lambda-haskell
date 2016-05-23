@@ -14,5 +14,9 @@ main.on('error', (err) => {
 });
 
 main.on('close', (code) => {
+  console.log(`child process pipes closed with code ${code}`);
+});
+
+main.on('exit', (code) => {
   console.log(`child process exited with code ${code}`);
 });
