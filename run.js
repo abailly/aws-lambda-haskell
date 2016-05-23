@@ -31,5 +31,8 @@ var ctx;
 exports.handle = function(event, context) {
   ctx = context
 
-  proc.stdin.write("Hello World!");
+    proc.stdin.write(JSON.stringify({
+        'event': event,
+        'context': context
+    }));
 }
