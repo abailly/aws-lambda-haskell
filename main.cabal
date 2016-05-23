@@ -15,7 +15,7 @@ build-type:          Simple
 extra-source-files:  README.md, README.md~
 cabal-version:       >=1.10
 
-executable aws-lambda-haskell
+executable main
   main-is:             main.hs
   -- other-modules:       
   -- other-extensions:    

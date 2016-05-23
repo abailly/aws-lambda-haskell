@@ -1,3 +1,5 @@
+process.env[‘PATH’] = process.env[‘PATH’] + ‘:’ + process.env[‘LAMBDA_TASK_ROOT’]
+
 const spawn = require('child_process').spawn;
 const main = spawn('./main');
 
@@ -29,10 +31,10 @@ var ctx;
  * handler for AWS Lambda
  */
 exports.handle = function(event, context) {
-  ctx = context
-
-    proc.stdin.write(JSON.stringify({
+    ctx = context
+    
+    main.stdin.write(JSON.stringify({
         'event': event,
         'context': context
-    }));
+    }) + '\n');
 }
