@@ -10,13 +10,26 @@ main.stderr.on('data', (data) => {
 });
 
 main.on('error', (err) => {
-  console.log(`error: ${err}`);
+    console.error(`error: ${err}`);
+    process.exit(1);
 });
 
 main.on('close', (code) => {
-  console.log(`child process pipes closed with code ${code}`);
+   console.log(`child process pipes closed with code ${code}`);
 });
 
 main.on('exit', (code) => {
-  console.log(`child process exited with code ${code}`);
+    console.log(`child process exited with code ${code}`);
+    process.exit(code);
 });
+
+var ctx;
+
+/**
+ * handler for AWS Lambda
+ */
+exports.handle = function(event, context) {
+  ctx = context
+
+  proc.stdin.write("Hello World!");
+}
