@@ -19,10 +19,6 @@ executable main
   main-is:             main.hs
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >=4.8 && <4.9,
-                       amazonka, amazonka-apigateway, amazonka-lambda, bytestring, directory, exceptions, lens, optparse-applicative
-                     , process, resourcet, transformers, text
+  build-depends:       base >=4.8 && <4.9
   -- hs-source-dirs:      
   default-language:    Haskell2010
-  default-extensions:  ScopedTypeVariables, OverloadedStrings
-  ghc-options:         -Wall -Werror -threaded
