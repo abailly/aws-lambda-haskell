@@ -1,0 +1,3 @@
+[submodule "system-extra"]
+	path = system-extra
+	url = git@github.com:abailly/system-extra.git

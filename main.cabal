@@ -21,7 +21,7 @@ executable main
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9,
                        amazonka, amazonka-apigateway, amazonka-lambda, bytestring, directory, exceptions, lens, optparse-applicative
-                     , process, resourcet, transformers, text
+                     , process, resourcet, system-extra, transformers, text
   -- hs-source-dirs:      
   default-language:    Haskell2010
   default-extensions:  ScopedTypeVariables, OverloadedStrings
