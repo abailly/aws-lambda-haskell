@@ -16,11 +16,7 @@ RUN yum install -y curl\
     && yum clean all --releasever=6 \
     && ln -s /lib64/libtinfo.so.5 /lib64/libtinfo.so
 
-ENV GHC_VERSION=7.10.3 \
-    CABAL_VERSION=1.22.2.0 \
-    ALEX_VERSION=3.1.7 \
-    HAPPY_VERSION=1.19.5 \
-    C2HS_VERSION=0.25.1
+ENV GHC_VERSION=7.10.2
 
 RUN yum install -y make
 
@@ -29,3 +25,6 @@ RUN mkdir -p /opt/stack/bin
 RUN curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C /opt/stack/bin '*/stack'
 ENV PATH /opt/stack/bin/:$PATH
 RUN stack setup $GHC_VERSION
+
+# application specific stuff
+RUN yum install -y lapack-devel blas-devel

@@ -1,3 +1,6 @@
 [submodule "system-extra"]
 	path = system-extra
 	url = git@github.com:abailly/system-extra.git
+[submodule "hs-word2vec"]
+	path = hs-word2vec
+	url = git@github.com:abailly/hs-word2vec.git
