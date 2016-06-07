@@ -1,5 +1,6 @@
 module AWS.ApiGateway where
 
+import   Control.Monad(when)
 import Data.Functor(void)
 import  Control.Monad.Catch
 import           Control.Lens
@@ -7,6 +8,7 @@ import           Control.Monad.Trans.AWS
 import           Network.AWS.APIGateway
 import Control.Monad.Trans.Resource
 import Data.Text(Text)
+import Data.Maybe
 
 createApi :: (MonadResource m, MonadCatch m) => Text -> AWST m Method
 createApi api = do
@@ -20,4 +22,10 @@ createApi api = do
     return meth
 
 deleteApi :: (MonadResource m, MonadCatch m) => Text -> AWST m ()
-deleteApi = void . send . deleteRestAPI
+deleteApi apiName = do
+  restApis <- (listToMaybe . view grarsItems) <$> send getRestAPIs
+  mapM_ deleteApiWithName restApis
+    where
+      deleteApiWithName api = when (api ^. raName == Just apiName) $ do
+        let apiId = api ^. raId
+        maybe (return ()) (void . send . deleteRestAPI) apiId
