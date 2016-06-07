@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards  #-}
 module Main where
 
 import           AWS.ApiGateway
@@ -8,36 +9,42 @@ import           Control.Monad           (forM)
 import           Control.Monad.Trans.AWS
 import           Data.Functor            (void)
 import           Data.List               (isPrefixOf)
-import           Data.Text               (pack)
+import           Data.Text               (unpack)
 import           Prelude                 hiding (null)
 import           System.Build
+import           System.Config
 import           System.Docker
-import           System.Environment
 import           System.FilePath
 import           System.IO
 import           System.IO.Extra
 import           System.Process
 
+
 main :: IO ()
-main = do
-  [ apiEndpoint, sourceDirectory, targetName ] <- getArgs
+main = options >>= go
+
+initAWS :: IO Env
+initAWS = do
+  lgr <- newLogger Trace stdout
+  awsEnv <- newEnv Ireland Discover <&> envLogger .~ lgr
+  return awsEnv
+
+go :: MainConfig -> IO ()
+go DeleteApi{..} = initAWS >>= \ awsEnv -> runResourceT (runAWST awsEnv $ deleteApi deleteApiEndpoint)
+go CreateApi{..} = do
   -- build docker container
   buildDocker
   -- build executable with docker
-  exe <- stackInDocker (ImageName "ghc-centos:lapack") sourceDirectory targetName
+  exe <- stackInDocker (ImageName "ghc-centos:lapack") (unpack lambdaSrcDirectory) (unpack lambdaTargetName)
   -- extract supplementary libs...
-  libs <- extractLibs (ImageName "ghc-centos:lapack") targetName
+  libs <- extractLibs (ImageName "ghc-centos:lapack") (unpack lambdaTargetName)
   -- pack executable with js shim in .zip file
   packLambda exe (exe:libs)
-  lgr <- newLogger Trace stdout
-  awsEnv <- newEnv Ireland Discover <&> envLogger .~ lgr
-  createApiEndpoint awsEnv apiEndpoint  >>= print
-  createOrUpdateFunction awsEnv targetName "lambda.zip" >>= print
+  awsEnv <- initAWS
+  runResourceT (runAWST awsEnv $ createApi createApiEndpoint)  >>= print
+  createOrUpdateFunction awsEnv lambdaTargetName "lambda.zip" >>= print
     where
-
-      createApiEndpoint awsEnv api = runResourceT (runAWST awsEnv $ createApi $ pack api)
-
-      createOrUpdateFunction awsEnv target zipFile = runResourceT (runAWST awsEnv $ createFunctionWithZip (pack target) zipFile)
+      createOrUpdateFunction awsEnv target zipFile = runResourceT (runAWST awsEnv $ createFunctionWithZip target zipFile)
 
       buildDocker :: IO ()
       buildDocker = callProcess "docker" ["build", "-t", "ghc-centos:lapack","ghc-centos" ]

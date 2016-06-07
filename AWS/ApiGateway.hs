@@ -1,5 +1,6 @@
 module AWS.ApiGateway where
 
+import Data.Functor(void)
 import  Control.Monad.Catch
 import           Control.Lens
 import           Control.Monad.Trans.AWS
@@ -17,3 +18,6 @@ createApi api = do
     let Just fileResourceId = resrc ^. rId
     meth :: Method <- send (putMethod apiId fileResourceId "GET" "NONE")
     return meth
+
+deleteApi :: (MonadResource m, MonadCatch m) => Text -> AWST m ()
+deleteApi = void . send . deleteRestAPI
