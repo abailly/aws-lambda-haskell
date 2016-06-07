@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Main where
 
---import           AWS.ApiGateway
+import           AWS.ApiGateway
 import           AWS.Lambda
 import           Control.Lens
 import           Control.Monad           (forM)
@@ -20,7 +20,7 @@ import           System.Process
 
 main :: IO ()
 main = do
-  [ _, sourceDirectory, targetName ] <- getArgs
+  [ apiEndpoint, sourceDirectory, targetName ] <- getArgs
   -- build docker container
   buildDocker
   -- build executable with docker
@@ -31,11 +31,11 @@ main = do
   packLambda exe (exe:libs)
   lgr <- newLogger Trace stdout
   awsEnv <- newEnv Ireland Discover <&> envLogger .~ lgr
-  -- createApiEndpoint env apiEndpoint  >>= print
+  createApiEndpoint awsEnv apiEndpoint  >>= print
   createOrUpdateFunction awsEnv targetName "lambda.zip" >>= print
     where
 
---      createApiEndpoint awsEnv api = runResourceT (runAWST awsEnv $ createApi $ pack api)
+      createApiEndpoint awsEnv api = runResourceT (runAWST awsEnv $ createApi $ pack api)
 
       createOrUpdateFunction awsEnv target zipFile = runResourceT (runAWST awsEnv $ createFunctionWithZip (pack target) zipFile)
 
