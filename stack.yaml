@@ -2,3 +2,9 @@ resolver: lts-6.2
 packages:
 - '.'
 - 'system-extra'
+
+extra-deps: 
+  - 'amazonka-core-1.4.3'
+  - 'amazonka-1.4.3'
+  - 'amazonka-apigateway-1.4.3'
+  - 'amazonka-lambda-1.4.3'
