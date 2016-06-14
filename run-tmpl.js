@@ -1,15 +1,4 @@
 const spawn = require('child_process').spawn;
-const main = spawn('./$$main$$', { stdio: ['pipe', 'pipe', process.stderr] });
-
-main.stdout.on('data', function(data) {
-    console.log('stdout: ' + data);
-});
-
-main.on('close', function(code) {
-    console.log('child process pipes closed with code '+ code);
-});
-
-var ctx;
 
 /**
  * handler for AWS Lambda
@@ -18,8 +7,17 @@ exports.handle = function(event, context, callback) {
     process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT']
     // help resolve dynamic libraries packaged with function
     process.env['LD_LIBRARY_PATH'] = process.env['LAMBDA_TASK_ROOT']
-    ctx = context
-
+    
+    const main = spawn('./$$main$$', { stdio: ['pipe', 'pipe', process.stderr] });
+    
+    main.stdout.on('data', function(data) {
+        console.log('stdout: ' + data);
+    });
+    
+    main.on('close', function(code) {
+        console.log('child process pipes closed with code '+ code);
+    });
+    
     console.log("sending data to $$main$$:\n" + JSON.stringify(event));
     console.log("$$main$$ pid is " + main.pid);
     
