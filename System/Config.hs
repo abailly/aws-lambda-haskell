@@ -7,9 +7,10 @@ data MainConfig = DeleteApi { deleteApiEndpoint :: Text}
                 | CreateApi { createApiEndpoint :: Text
                             , lambdaTargetName  :: Text
                             }
-                | DeployLambda { lambdaTargetName   :: Text
-                               , lambdaSrcDirectory :: Text
-                               }
+                | BuildLambda { lambdaTargetName   :: Text
+                              , lambdaSrcDirectory :: Text
+                              }
+                | DeployLambda { lambdaTargetName :: Text }
                 deriving (Eq,Show,Read)
 
 mainConfig :: Parser MainConfig
@@ -47,20 +48,29 @@ deleteApiConfig = DeleteApi
 lambdaConfig :: Parser MainConfig
 lambdaConfig = subparser (
   command "deploy" (info deployLambdaConfig
-                      (progDesc "Deploy an AWS Lambda function"))
+                      (progDesc "Deploy an AWS Lambda function package"))
+  <>  command "build" (info buildLambdaConfig
+                       (progDesc "Build an AWS Lambda function package using docker"))
   )
+
+buildLambdaConfig :: Parser MainConfig
+buildLambdaConfig = BuildLambda
+  <$> (pack <$> strOption ( long "build-target"
+                            <> short 't'
+                            <> metavar "STRING"
+                            <> help "Target of executable to build"))
+  <*> (pack <$> strOption ( long "source-directory"
+                            <> short 'd'
+                            <> value "."
+                            <> metavar "FILE"
+                            <> help "Source directory of lambda function to build"))
 
 deployLambdaConfig :: Parser MainConfig
 deployLambdaConfig = DeployLambda
   <$> (pack <$> strOption ( long "build-target"
                             <> short 't'
                             <> metavar "STRING"
-                            <> help "Target of executable to build and deploy"))
-  <*> (pack <$> strOption ( long "source-directory"
-                            <> short 'd'
-                            <> value "."
-                            <> metavar "FILE"
-                            <> help "Source directory of lambda function to deploy"))
+                            <> help "Target of executable to deploy"))
 
 options :: IO MainConfig
 options = execParser opts

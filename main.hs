@@ -32,7 +32,7 @@ initAWS = do
 go :: MainConfig -> IO ()
 go CreateApi{..} = initAWS >>= \ awsEnv -> runResourceT (runAWST awsEnv $ createApi createApiEndpoint lambdaTargetName) >>= print
 go DeleteApi{..} = initAWS >>= \ awsEnv -> runResourceT (runAWST awsEnv $ deleteApi deleteApiEndpoint)
-go DeployLambda{..} = do
+go BuildLambda{..} = do
   -- build docker container
   buildDocker
   -- build executable with docker
@@ -41,11 +41,7 @@ go DeployLambda{..} = do
   libs <- extractLibs (ImageName "ghc-centos:lapack") (unpack lambdaTargetName)
   -- pack executable with js shim in .zip file
   packLambda exe (exe:libs)
-  awsEnv <- initAWS
-  createOrUpdateFunction awsEnv lambdaTargetName "lambda.zip" >>= print
     where
-      createOrUpdateFunction awsEnv target zipFile = runResourceT (runAWST awsEnv $ createFunctionWithZip target zipFile)
-
       buildDocker :: IO ()
       buildDocker = callProcess "docker" ["build", "-t", "ghc-centos:lapack","ghc-centos" ]
 
@@ -54,6 +50,12 @@ go DeployLambda{..} = do
         runner <- setMainTo exe <$> readFile "run-tmpl.js"
         writeFile "run.js" runner
         callProcess "zip" $ [ "lambda.zip", "run.js" ] ++ files
+
+go DeployLambda{..} = do
+  awsEnv <- initAWS
+  createOrUpdateFunction awsEnv lambdaTargetName "lambda.zip" >>= print
+    where
+      createOrUpdateFunction awsEnv target zipFile = runResourceT (runAWST awsEnv $ createFunctionWithZip target zipFile)
 
 setMainTo :: FilePath -> String -> String
 setMainTo _   []                             = []
