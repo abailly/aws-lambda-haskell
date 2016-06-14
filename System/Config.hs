@@ -67,10 +67,10 @@ buildLambdaConfig = BuildLambda
 
 deployLambdaConfig :: Parser MainConfig
 deployLambdaConfig = DeployLambda
-  <$> (pack <$> strOption ( long "build-target"
-                            <> short 't'
+  <$> (pack <$> strOption ( long "function-name"
+                            <> short 'f'
                             <> metavar "STRING"
-                            <> help "Target of executable to deploy"))
+                            <> help "Function name to deploy"))
 
 options :: IO MainConfig
 options = execParser opts
