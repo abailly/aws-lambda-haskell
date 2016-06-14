@@ -4,8 +4,6 @@ This repository contains code and directions to run Haskell executables over [AW
 
 ## Howto - Automated Way
 
-**WARNING: Work in Progress**
-
 The `main.hs` aims at automating the deployment of Haskell code packages to AWS Lambda:
 
 * Manaing AWS Lambda functions and packages,
@@ -58,7 +56,9 @@ $ ./main api delete --endpoint fooAPI
 
 Note that AWS has a rate limit on API deletions.
 
-**TODO**: Creating an API Gateway endpoint and linking it to Lambda function
+### TODO
+
+* Creating an API Gateway endpoint and linking it to Lambda function: The configuration and part of the code are ready but the process is a little bit involved hence requires more interaction with AWS
 
 ## Howto - The Manual Way
 
