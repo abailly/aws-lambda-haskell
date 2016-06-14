@@ -13,21 +13,20 @@ data MainConfig = DeleteApi { deleteApiEndpoint :: Text}
                 deriving (Eq,Show,Read)
 
 mainConfig :: Parser MainConfig
-mainConfig = subparser
-  ( command "api" (info apiConfig
-                   (progDesc "Manipulate AWS API Gateway Endpoints and their relations with Lambda functions"))
-    <> command "lambda" (info lambdaConfig
-                         (progDesc "Manipulate AWS Lambda functions"))
+mainConfig = subparser (
+  command "api" (info apiConfig
+                 (progDesc "Manipulate AWS API Gateway Endpoints and their relations with Lambda functions"))
+  <> command "lambda" (info lambdaConfig
+                       (progDesc "Manipulate AWS Lambda functions"))
   )
 
 apiConfig :: Parser MainConfig
 apiConfig = subparser (
   command "create" (info createApiConfig
-                      (progDesc "Create an AWS API Gateway endpoint and ties it to AWS Lambda function"))
+                    (progDesc "Create an AWS API Gateway endpoint and ties it to AWS Lambda function"))
   <> command "delete" (info deleteApiConfig
                        (progDesc "Delete an API Gateway endpoint"))
   )
-
 
 createApiConfig :: Parser MainConfig
 createApiConfig = CreateApi
