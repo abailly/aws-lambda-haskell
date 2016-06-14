@@ -30,8 +30,9 @@ initAWS = do
   return awsEnv
 
 go :: MainConfig -> IO ()
+go CreateApi{..} = initAWS >>= \ awsEnv -> runResourceT (runAWST awsEnv $ createApi createApiEndpoint lambdaTargetName) >>= print
 go DeleteApi{..} = initAWS >>= \ awsEnv -> runResourceT (runAWST awsEnv $ deleteApi deleteApiEndpoint)
-go CreateApi{..} = do
+go DeployLambda{..} = do
   -- build docker container
   buildDocker
   -- build executable with docker
@@ -41,7 +42,6 @@ go CreateApi{..} = do
   -- pack executable with js shim in .zip file
   packLambda exe (exe:libs)
   awsEnv <- initAWS
-  runResourceT (runAWST awsEnv $ createApi createApiEndpoint)  >>= print
   createOrUpdateFunction awsEnv lambdaTargetName "lambda.zip" >>= print
     where
       createOrUpdateFunction awsEnv target zipFile = runResourceT (runAWST awsEnv $ createFunctionWithZip target zipFile)

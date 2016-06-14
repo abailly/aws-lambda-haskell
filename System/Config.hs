@@ -4,41 +4,64 @@ import           Data.Text
 import           Options.Applicative
 
 data MainConfig = DeleteApi { deleteApiEndpoint :: Text}
-                | CreateApi { createApiEndpoint  :: Text
-                            , lambdaSrcDirectory :: Text
-                            , lambdaTargetName   :: Text
+                | CreateApi { createApiEndpoint :: Text
+                            , lambdaTargetName  :: Text
                             }
+                | DeployLambda { lambdaTargetName   :: Text
+                               , lambdaSrcDirectory :: Text
+                               }
                 deriving (Eq,Show,Read)
 
 mainConfig :: Parser MainConfig
 mainConfig = subparser
-  ( command "create" (info createConfig
-                      (progDesc "create an AWS Lambda Function and ties it to an API Gateway"))
-    <> command "delete" (info deleteConfig
-                         (progDesc "deleta an AWS Lambda function and associated API Gateway endpoint"))
+  ( command "api" (info apiConfig
+                   (progDesc "Manipulate AWS API Gateway Endpoints and their relations with Lambda functions"))
+    <> command "lambda" (info lambdaConfig
+                         (progDesc "Manipulate AWS Lambda functions"))
   )
 
-createConfig :: Parser MainConfig
-createConfig = CreateApi
+apiConfig :: Parser MainConfig
+apiConfig = subparser (
+  command "create" (info createApiConfig
+                      (progDesc "Create an AWS API Gateway endpoint and ties it to AWS Lambda function"))
+  <> command "delete" (info deleteApiConfig
+                       (progDesc "Delete an API Gateway endpoint"))
+  )
+
+
+createApiConfig :: Parser MainConfig
+createApiConfig = CreateApi
+  <$> (pack <$> strOption ( long "endpoint"
+                            <> short 'e'
+                            <> help "Endpoint identifier, a simple string"))
+  <*> (pack <$> strOption ( long "build-target"
+                            <> short 't'
+                            <> metavar "STRING"
+                            <> help "Target of executable to build and deploy"))
+
+deleteApiConfig :: Parser MainConfig
+deleteApiConfig = DeleteApi
   <$> (pack <$> strOption ( long "endpoint"
                            <> short 'e'
-                           <> help "Endpoint identifier, a simple string"))
-  <*> (pack <$> strOption ( long "source-directory"
-                           <> short 'd'
-                           <> value "."
-                           <> metavar "FILE"
-                           <> help "Source directory of lambda function to deploy"))
-  <*> (pack <$> strOption ( long "build-target"
-                           <> short 't'
-                           <> metavar "STRING"
-                           <> help "Target of executable to build and deploy"))
-
-
-deleteConfig :: Parser MainConfig
-deleteConfig = DeleteApi
-  <$> (pack <$> strOption ( long "endpoint"
-                           <> short 'd'
                            <> help "Endpoint identifier, a simple string. If multiple identifiers match, the first one will be deleted."))
+
+lambdaConfig :: Parser MainConfig
+lambdaConfig = subparser (
+  command "deploy" (info deployLambdaConfig
+                      (progDesc "Deploy an AWS Lambda function"))
+  )
+
+deployLambdaConfig :: Parser MainConfig
+deployLambdaConfig = DeployLambda
+  <$> (pack <$> strOption ( long "build-target"
+                            <> short 't'
+                            <> metavar "STRING"
+                            <> help "Target of executable to build and deploy"))
+  <*> (pack <$> strOption ( long "source-directory"
+                            <> short 'd'
+                            <> value "."
+                            <> metavar "FILE"
+                            <> help "Source directory of lambda function to deploy"))
 
 options :: IO MainConfig
 options = execParser opts

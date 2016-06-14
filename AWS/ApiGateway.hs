@@ -1,17 +1,18 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module AWS.ApiGateway where
 
-import   Control.Monad(when)
-import Data.Functor(void)
-import  Control.Monad.Catch
 import           Control.Lens
+import           Control.Monad                (when)
+import           Control.Monad.Catch
 import           Control.Monad.Trans.AWS
+import           Control.Monad.Trans.Resource
+import           Data.Functor                 (void)
+import           Data.Maybe
+import           Data.Text                    (Text)
 import           Network.AWS.APIGateway
-import Control.Monad.Trans.Resource
-import Data.Text(Text)
-import Data.Maybe
 
-createApi :: (MonadResource m, MonadCatch m) => Text -> AWST m Method
-createApi api = do
+createApi :: (MonadResource m, MonadCatch m) => Text -> Text -> AWST m Method
+createApi api _  = do
     restApi <- send (createRestAPI api)
     let Just apiId = restApi ^. raId
     resources :: [Resource] <- view grrsItems <$> send (getResources apiId)
