@@ -2,6 +2,64 @@
 
 This repository contains code and directions to run Haskell executables over [AWS Lambda]() "serverless" infrastructure. This experiment was triggered by reading description of [apex](http://apex.run) provide a wrapper to run Go code.
 
+## Howto - Automated Way
+
+**WARNING: Work in Progress**
+
+The `main.hs` aims at automating the deployment of Haskell code packages to AWS Lambda:
+
+* Manaing AWS Lambda functions and packages,
+* Manage AWS Api Gateway endpoints to expose Lambda functions.
+
+Interaction with AWS is done through the excellent [amazonka](https://github.com/brendanhay/amazonka) package.
+
+To build CLI program:
+
+```
+$ stack build
+```
+
+Creating an AWS Lambda package (requires [docker](http://docker.io)):
+
+```
+$ ./main lambda build --build-target foo --source-directory foo/
+```
+
+This generates a `lambda.zip` file in the current directory that contains something like:
+
+```
+$ unzip -l lambda.zip
+Archive:  lambda.zip
+  Length     Date   Time    Name
+ --------    ----   ----    ----
+     1131  06-07-16 10:38   run.js
+ 32648176  06-07-16 10:38   words
+   364776  06-07-16 10:38   libblas.so.3
+  5638304  06-07-16 10:38   liblapack.so.3
+  1186104  06-07-16 10:38   libgfortran.so.3
+   244904  06-07-16 10:38   libquadmath.so.0
+ --------                   -------
+ 40083395                   6 files
+```
+
+Deploying an existing `lambda.zip` file to AWS:
+
+```
+$ ./main lambda deploy --function-name foo
+```
+
+This creates function `foo` that can be invoked manually (see below).
+
+Deleting an API Gateway endpoint:
+
+```
+$ ./main api delete --endpoint fooAPI
+```
+
+Note that AWS has a rate limit on API deletions.
+
+**TODO**: Creating an API Gateway endpoint and linking it to Lambda function
+
 ## Howto - The Manual Way
 
 ### Prepare environment
