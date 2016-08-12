@@ -1,10 +1,17 @@
 resolver: lts-6.2
 packages:
 - '.'
-- 'system-extra'
+- location:
+    git: https://github.com/abailly/system-extra
+    commit: bbb78d47462a24f3bcfc2bab0ac080370262ea49
+  extra-dep: true
+- location:
+    git: https://github.com/abailly/hs-word2vec
+    commit: f3fb0a797056c9ae325367e1035ba4fd16f3b2d3
 
-extra-deps: 
+extra-deps:
   - 'amazonka-core-1.4.3'
   - 'amazonka-1.4.3'
   - 'amazonka-apigateway-1.4.3'
   - 'amazonka-lambda-1.4.3'
+  - tokenize-0.3.0
